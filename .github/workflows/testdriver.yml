@@ -1,0 +1,32 @@
+name: TestDriver Tests
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+    branches: [master, main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - run: npm ci
+
+      - name: Authenticate to TestDriver
+        uses: testdriverai/action@canary
+        with:
+          api-key: ${{ secrets.TD_API_KEY }}
+
+      - name: Run TestDriver tests
+        run: npx vitest run
